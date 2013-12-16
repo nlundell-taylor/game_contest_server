@@ -1,0 +1,69 @@
+class ContestsController < ApplicationController
+    before_action only: [:new, :create] do
+        unless ensure_user_logged_in__flash_warn_goes_to_login
+            ensure_contest_creator__flash_danger_goes_to_root
+        end
+    end
+
+    before_action only: [:edit, :update] do
+        unless ensure_user_logged_in__flash_warn_goes_to_login
+            ensure_user_owns_contest__flash_danger_goes_to_root
+        end
+    end
+
+    before_action only: [:destroy] do
+        unless ensure_user_logged_in__flash_warn_goes_to_login
+            ensure_user_owns_contest__flash_danger_goes_to_root
+        end
+    end
+
+    def new
+        @contest = current_user.contests.build
+    end
+
+    def create
+        @contest = current_user.contests.build(valid_params)
+        if @contest.save
+            flash[:success] = 'Successful contest creation'
+            redirect_to @contest
+        else
+            flash.now[:danger] = 'Input not valid'
+            render :new
+        end
+    end
+
+    def edit
+        @contest = Contest.find(params[:id])
+    end
+
+    def update
+        @contest = Contest.find(params[:id])
+        if @contest.update(valid_params)
+            flash[:success] = 'Successfuly updated contest'
+            redirect_to @contest
+        else
+            flash.now[:danger] = 'Input not valid'
+            render :new
+        end
+    end
+
+    def show
+        @contest = Contest.find(params[:id])
+    end
+
+    def index
+        @contests = Contest.all
+    end
+
+    def destroy
+        @contest = Contest.find(params[:id])
+        flash[:success] = "Removed #{@contest.name}"
+        @contest.destroy
+        redirect_to contests_path
+    end
+
+    private
+        def valid_params
+            params.require(:contest).permit(:name, :deadline, :start, :description, :contest_type, :referee_id)
+        end
+end
