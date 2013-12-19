@@ -1,0 +1,32 @@
+    <li> 
+    <%= link_to user.username, user_path(user) %>  | 
+    <%= link_to user.email, user_path(user) %>
+    <% if logged_in? and current_user.admin? and not current_user?(user) %>
+        <%= link_to 'delete this user', user_path(user), method: :delete, data: { confirm: 'Are you sure?'} %> 
+    <% end %>
+    </li>
+</ul>
+
+<h2> Players </h2>
+<!--TODO: Change
+<h4> <%# link_to "New Player", new_player_path %> </h4>
+-->
+
+<ul>
+    <% @players = user.players %> players:
+    <%= @players.length %> players:
+    <% @players.each do |player| %>
+        <li>
+        <%= player.name %> |
+        <% if logged_in? and current_user?(user) %>
+            <%= link_to 'delete', player_path(player), method: :delete, data: { confirm: 'Are you sure?'} %> 
+        <% end %>
+        </li>
+    <% end %>
+</ul>
+
+<% if user.referees.length > 0 %>
+    <h2> Referees </h2>
+    <%= user.referees.length %> referees:
+
+<% end %>
